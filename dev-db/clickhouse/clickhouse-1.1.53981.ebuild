@@ -12,6 +12,7 @@ MY_PV="$(get_version_component_range 3)"
 # SRC_URI="https://github.com/yandex/${MY_PN}/archive/${MY_PV}.tar.gz -> ${MY_PN}-r${MY_PV}.tar.gz"
 SRC_URI=""
 EGIT_REPO_URI="https://github.com/yandex/${MY_PN}.git"
+EGIT_SUBMODULES=( -private )
 
 if [[ ${PV} != 9999 ]]; then
 	EGIT_COMMIT=${MY_PV}
@@ -93,7 +94,7 @@ src_install() {
 pkg_setup() {
 	if use server; then
 		enewgroup clickhouse
-		enewuser clickhouse -1 /bin/false /var/lib/clickhouse clickhouse
+		enewuser clickhouse -1 -1 /var/lib/clickhouse clickhouse
 
 	fi
 }
