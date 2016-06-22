@@ -40,7 +40,8 @@ dev-libs/icu[static-libs]
 dev-libs/glib[static-libs]
 dev-libs/boost[static-libs]
 dev-libs/openssl[static-libs]
-dev-libs/zookeeper-c[static-libs]"
+dev-libs/zookeeper-c[static-libs]
+dev-util/patchelf"
 
 pkg_pretend() {
 	CHECKREQS_DISK_BUILD="18G"
@@ -49,6 +50,12 @@ pkg_pretend() {
 
 src_unpack() {
 	git-r3_src_unpack
+}
+
+src_prepare() {
+	default_src_prepare
+	sed -i -r -e "s: -Wno-(for-loop-analysis|unused-local-typedef|unused-private-field): -Wno-unused-variable:g" \
+		contrib/libpoco/CMakeLists.txt || die "Cann-t patch poco"
 }
 
 src_configure() {
@@ -63,14 +70,17 @@ src_compile() {
 }
 
 src_install() {
+	cd "${BUILD_DIR}"
+	einfo $(pwd)
 	if use server; then
 		exeinto /usr/sbin
+		patchelf --remove-rpath dbms/src/Server/clickhouse-server
 		doexe dbms/src/Server/clickhouse-server
 		newinitd "${FILESDIR}"/clickhouse-server.initd clickhouse
 
 		insinto /etc/clickhouse-server
-		doins dbms/src/Server/config.xml
-		doins dbms/src/Server/users.xml
+		doins ${S}/dbms/src/Server/config.xml
+		doins ${S}/dbms/src/Server/users.xml
 
 		sed -e 's:/opt/clickhouse:/var/lib/clickhouse:g' -i "${ED}/etc/clickhouse-server/config.xml"
 
@@ -84,10 +94,11 @@ src_install() {
 
 	if use client; then
 		exeinto /usr/bin
+		patchelf --remove-rpath dbms/src/Client/clickhouse-client
 		doexe dbms/src/Client/clickhouse-client
 
 		insinto /etc/clickhouse-client
-		doins dbms/src/Client/config.xml
+		doins ${S}/dbms/src/Client/config.xml
 	fi
 }
 
