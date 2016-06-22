@@ -46,6 +46,10 @@ dev-util/patchelf"
 pkg_pretend() {
 	CHECKREQS_DISK_BUILD="18G"
 	check-reqs_pkg_pretend
+	if use server; then
+		grep -q sse4_2 /proc/cpuinfo || \
+			ewarn "SSE 4.2 is not supported, server would not work on this machine"
+	fi
 }
 
 src_unpack() {

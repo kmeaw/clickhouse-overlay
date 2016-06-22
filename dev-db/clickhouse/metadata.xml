@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>kmeaw@kmeaw.com</email>
+		<name>kmeaw</name>
+		<description>maintainer</description>
+	</maintainer>
+	<use>
+		<flag name="client">Build command-line ClickHouse client</flag>
+		<flag name="server">Build ClickHouse server</flag>
+		<flag name="mongodb">Support external dictionaries in MongoDB</flag>
+	</use>
+</pkgmetadata>
