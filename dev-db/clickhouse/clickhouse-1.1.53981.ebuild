@@ -41,7 +41,8 @@ dev-libs/glib[static-libs]
 dev-libs/boost[static-libs]
 dev-libs/openssl[static-libs]
 dev-libs/zookeeper-c[static-libs]
-dev-util/patchelf"
+dev-util/patchelf
+>=sys-devel/gcc-5"
 
 pkg_pretend() {
 	CHECKREQS_DISK_BUILD="18G"
