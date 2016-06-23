@@ -89,6 +89,7 @@ src_install() {
 		doins ${S}/dbms/src/Server/users.xml
 
 		sed -e 's:/opt/clickhouse:/var/lib/clickhouse:g' -i "${ED}/etc/clickhouse-server/config.xml"
+		sed -e '/listen_host/s%::%::1%' -i "${ED}/etc/clickhouse-server/config.xml"
 
 		dodir /var/lib/clickhouse/data/default /var/lib/clickhouse/metadata/default /var/lib/clickhouse/tmp
 		dodir /var/log/clickhouse-server
@@ -112,6 +113,5 @@ pkg_setup() {
 	if use server; then
 		enewgroup clickhouse
 		enewuser clickhouse -1 -1 /var/lib/clickhouse clickhouse
-
 	fi
 }
