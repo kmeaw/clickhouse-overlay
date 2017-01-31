@@ -67,7 +67,13 @@ pkg_pretend() {
 src_prepare() {
 	default_src_prepare
 	sed -i -r -e "s: -Wno-(for-loop-analysis|unused-local-typedef|unused-private-field): -Wno-unused-variable:g" \
-		contrib/libpoco/CMakeLists.txt || die "Cann-t patch poco"
+		contrib/libpoco/CMakeLists.txt || die "Cannot patch poco"
+	if $(tc-getCC) -no-pie -v 2>&1 | grep -q unrecognized; then
+		sed -i -e 's:--no-pie::' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
+		sed -i -e 's:-no-pie::' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
+	else
+		sed -i -e 's:--no-pie:-no-pie:' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
+	fi
 }
 
 src_configure() {
@@ -78,16 +84,17 @@ src_configure() {
 }
 
 src_compile() {
-	cmake-utils_src_compile $(use server && echo clickhouse-server) $(use client && echo clickhouse-client)
+	cmake-utils_src_compile clickhouse
 }
 
 src_install() {
 	cd "${BUILD_DIR}"
 	einfo $(pwd)
+	patchelf --remove-rpath dbms/src/Server/clickhouse
+
 	if use server; then
 		exeinto /usr/sbin
-		patchelf --remove-rpath dbms/src/Server/clickhouse-server
-		doexe dbms/src/Server/clickhouse-server
+		newexe dbms/src/Server/clickhouse clickhouse-server
 		newinitd "${FILESDIR}"/clickhouse-server.initd clickhouse
 
 		insinto /etc/clickhouse-server
@@ -107,8 +114,7 @@ src_install() {
 
 	if use client; then
 		exeinto /usr/bin
-		patchelf --remove-rpath dbms/src/Client/clickhouse-client
-		doexe dbms/src/Client/clickhouse-client
+		newexe dbms/src/Server/clickhouse clickhouse-client
 
 		insinto /etc/clickhouse-client
 		doins "${S}"/dbms/src/Client/config.xml
