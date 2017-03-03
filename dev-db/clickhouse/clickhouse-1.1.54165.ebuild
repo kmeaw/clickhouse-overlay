@@ -54,7 +54,8 @@ virtual/libmysqlclient[static-libs]
 || ( >=sys-devel/gcc-5.0 >=sys-devel/clang-3.8 )"
 
 pkg_pretend() {
-	CHECKREQS_DISK_BUILD="18G"
+	CHECKREQS_DISK_BUILD="2G"
+	# Actually it is 960M on my machine
 	check-reqs_pkg_pretend
 	if [[ $(tc-getCC) == clang ]]; then
 		:
