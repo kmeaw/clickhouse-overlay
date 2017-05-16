@@ -78,6 +78,7 @@ src_prepare() {
 
 	sed -i -- "s/VERSION_REVISION .*)/VERSION_REVISION ${PV##*.})/g" libs/libcommon/cmake/version.cmake
 	sed -i -- "s/VERSION_DESCRIBE .*)/VERSION_DESCRIBE v${PV}-${TYPE})/g" libs/libcommon/cmake/version.cmake
+	epatch "${FILESDIR}"/clickhouse-mongodb.patch
 }
 
 src_configure() {
