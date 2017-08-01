@@ -122,7 +122,7 @@ src_install() {
 		newexe dbms/src/Server/clickhouse clickhouse-client
 
 		insinto /etc/clickhouse-client
-		newins "${S}"/dbms/src/Server/config-client.xml config.xml
+		newins "${S}"/dbms/src/Server/clickhouse-client.xml config.xml
 	fi
 }
 
