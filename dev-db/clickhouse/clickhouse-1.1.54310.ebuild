@@ -45,7 +45,9 @@ client? (
 || (
 	dev-db/unixODBC[static-libs]
 	dev-libs/poco[odbc]
-)"
+)
+dev-libs/poco
+"
 
 DEPEND="${RDEPEND}
 sys-libs/libtermcap-compat[static-libs]
