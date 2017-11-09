@@ -18,7 +18,12 @@ if [[ ${PV} == 9999 ]]; then
 	TYPE="unstable"
 else
 	TYPE="stable"
-	SRC_URI="https://github.com/yandex/${MY_PN}/archive/v${PV}-${TYPE}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/yandex/${MY_PN}/archive/v${PV}-${TYPE}.tar.gz -> ${P}.tar.gz
+https://github.com/google/cctz/archive/4f9776a.tar.gz -> cctz-4f9776a.tar.gz
+https://github.com/edenhill/librdkafka/archive/3401fa1.tar.gz -> librdkafka-3401fa1.tar.gz
+https://github.com/lz4/lz4/archive/c10863b.tar.gz -> lz4-c10863b.tar.gz
+https://github.com/ClickHouse-Extras/zookeeper/archive/d2f05a6.tar.gz -> zookeeper-d2f05a6.tar.gz
+https://github.com/facebook/zstd/archive/f4340f4.tar.gz -> zstd-f4340f4.tar.gz"
 	S="${WORKDIR}/${MY_PN}-${PV}-${TYPE}"
 fi
 
@@ -65,10 +70,22 @@ pkg_pretend() {
 	fi
 }
 
+src_unpack() {
+	default_src_unpack
+	[[ ${PV} == 9999 ]] && return 0
+	cd "${S}/contrib"
+	mkdir cctz librdkafka lz4 zookeeper zstd
+	tar --strip-components=1 -C cctz -xf "${DISTDIR}/cctz-4f9776a.tar.gz"
+	tar --strip-components=1 -C librdkafka -xf "${DISTDIR}/librdkafka-3401fa1.tar.gz"
+	tar --strip-components=1 -C lz4 -xf "${DISTDIR}/lz4-c10863b.tar.gz"
+	tar --strip-components=1 -C zookeeper -xf "${DISTDIR}/zookeeper-d2f05a6.tar.gz"
+	tar --strip-components=1 -C zstd -xf "${DISTDIR}/zstd-f4340f4.tar.gz"
+}
+
 src_prepare() {
 	default_src_prepare
-	sed -i -r -e "s: -Wno-(for-loop-analysis|unused-local-typedef|unused-private-field): -Wno-unused-variable:g" \
-		contrib/libpoco/CMakeLists.txt || die "Cannot patch poco"
+	#sed -i -r -e "s: -Wno-(for-loop-analysis|unused-local-typedef|unused-private-field): -Wno-unused-variable:g" \
+	#	contrib/libpoco/CMakeLists.txt || die "Cannot patch poco"
 	if $(tc-getCC) -no-pie -v 2>&1 | grep -q unrecognized; then
 		sed -i -e 's:--no-pie::' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
 		sed -i -e 's:-no-pie::' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
