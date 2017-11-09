@@ -58,7 +58,7 @@ dev-libs/openssl[static-libs]
 dev-libs/zookeeper-c[static-libs]
 dev-util/patchelf
 virtual/libmysqlclient[static-libs]
-|| ( >=sys-devel/gcc-5.0 >=sys-devel/clang-3.8 )"
+|| ( >=sys-devel/gcc-6.0 >=sys-devel/clang-3.8 )"
 
 pkg_pretend() {
 	CHECKREQS_DISK_BUILD="2G"
@@ -66,7 +66,7 @@ pkg_pretend() {
 	check-reqs_pkg_pretend
 	if [[ $(tc-getCC) == clang ]]; then
 		:
-	elif [[ $(gcc-major-version) -lt 5 ]]; then
+	elif [[ $(gcc-major-version) -lt 6 ]]; then
 		eerror "Compilation with gcc older than 6.0 is not supported"
 		die "Too old gcc found."
 	fi
