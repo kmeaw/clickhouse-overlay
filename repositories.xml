@@ -1,0 +1,14 @@
+<repositories encoding="unicode" version="1.1">
+  <repo priority="50" quality="experimental" status="unofficial">
+    <name>clickhouse</name>
+    <description lang="en">Overlay for Yandex ClickHouse DBMS</description>
+    <homepage>https://github.com/kmeaw/clickhouse-overlay</homepage>
+    <owner type="person">
+      <email>kmeaw@yandex-team.ru</email>
+      <name>Dmitry Bilunov</name>
+    </owner>
+    <source type="git">https://github.com/kmeaw/clickhouse-overlay.git</source>
+    <source type="git">git+ssh://git@github.com/kmeaw/clickhouse-overlay.git</source>
+    <feed>https://github.com/kmeaw/clickhouse-overlay/commits/master.atom</feed>
+  </repo>
+</repositories>
