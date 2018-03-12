@@ -20,10 +20,13 @@ else
 	TYPE="stable"
 	SRC_URI="https://github.com/yandex/${MY_PN}/archive/v${PV}-${TYPE}.tar.gz -> ${P}.tar.gz
 https://github.com/google/cctz/archive/4f9776a.tar.gz -> cctz-4f9776a.tar.gz
-https://github.com/edenhill/librdkafka/archive/3401fa1.tar.gz -> librdkafka-3401fa1.tar.gz
+https://github.com/edenhill/librdkafka/archive/c3d50eb.tar.gz -> librdkafka-c3d50eb.tar.gz
 https://github.com/lz4/lz4/archive/c10863b.tar.gz -> lz4-c10863b.tar.gz
-https://github.com/ClickHouse-Extras/zookeeper/archive/d2f05a6.tar.gz -> zookeeper-d2f05a6.tar.gz
-https://github.com/facebook/zstd/archive/f4340f4.tar.gz -> zstd-f4340f4.tar.gz"
+https://github.com/ClickHouse-Extras/zookeeper/archive/438afae.tar.gz -> zookeeper-438afae.tar.gz
+https://github.com/facebook/zstd/archive/f4340f4.tar.gz -> zstd-f4340f4.tar.gz
+https://github.com/Dead2/zlib-ng/archive/e07a52d.tar.gz -> zlib-ng-e07a52d.tar.gz
+https://github.com/ClickHouse-Extras/poco/archive/8238852.tar.gz -> poco-8238852.tar.gz
+https://github.com/ClickHouse-Extras/boost/archive/eb59437.tar.gz -> boost-eb59437.tar.gz"
 	S="${WORKDIR}/${MY_PN}-${PV}-${TYPE}"
 fi
 
@@ -36,29 +39,24 @@ REQUIRED_USE="
 "
 
 RDEPEND="dev-libs/libltdl[static-libs]
-sys-libs/zlib[static-libs]
 dev-libs/libpcre
 client? (
 	sys-libs/ncurses:0
 	sys-libs/readline:0
 )
-|| (
-	dev-db/unixODBC[static-libs]
-	dev-libs/poco[odbc]
-)
-dev-libs/poco
 "
 
 DEPEND="${RDEPEND}
 sys-libs/libtermcap-compat[static-libs]
 dev-libs/icu[static-libs]
 dev-libs/glib[static-libs]
-dev-libs/boost[static-libs]
 dev-libs/openssl[static-libs]
-dev-libs/zookeeper-c[static-libs]
 dev-util/patchelf
 virtual/libmysqlclient[static-libs]
-|| ( >=sys-devel/gcc-6.0 >=sys-devel/clang-3.8 )"
+dev-cpp/gtest[static-libs]
+dev-libs/re2
+dev-libs/capnproto[static-libs]
+|| ( >=sys-devel/gcc-7.0 >=sys-devel/clang-3.8 )"
 
 pkg_pretend() {
 	CHECKREQS_DISK_BUILD="2G"
@@ -66,8 +64,8 @@ pkg_pretend() {
 	check-reqs_pkg_pretend
 	if [[ $(tc-getCC) == clang ]]; then
 		:
-	elif [[ $(gcc-major-version) -lt 6 ]]; then
-		eerror "Compilation with gcc older than 6.0 is not supported"
+	elif [[ $(gcc-major-version) -lt 7 ]]; then
+		eerror "Compilation with gcc older than 7.0 is not supported"
 		die "Too old gcc found."
 	fi
 }
@@ -78,10 +76,13 @@ src_unpack() {
 	cd "${S}/contrib"
 	mkdir cctz librdkafka lz4 zookeeper zstd
 	tar --strip-components=1 -C cctz -xf "${DISTDIR}/cctz-4f9776a.tar.gz"
-	tar --strip-components=1 -C librdkafka -xf "${DISTDIR}/librdkafka-3401fa1.tar.gz"
+	tar --strip-components=1 -C librdkafka -xf "${DISTDIR}/librdkafka-c3d50eb.tar.gz"
 	tar --strip-components=1 -C lz4 -xf "${DISTDIR}/lz4-c10863b.tar.gz"
-	tar --strip-components=1 -C zookeeper -xf "${DISTDIR}/zookeeper-d2f05a6.tar.gz"
+	tar --strip-components=1 -C zookeeper -xf "${DISTDIR}/zookeeper-438afae.tar.gz"
 	tar --strip-components=1 -C zstd -xf "${DISTDIR}/zstd-f4340f4.tar.gz"
+	tar --strip-components=1 -C zlib-ng -xf "${DISTDIR}/zlib-ng-e07a52d.tar.gz"
+	tar --strip-components=1 -C poco -xf "${DISTDIR}/poco-8238852.tar.gz"
+	tar --strip-components=1 -C boost -xf "${DISTDIR}/boost-eb59437.tar.gz"
 }
 
 src_prepare() {
@@ -95,15 +96,25 @@ src_prepare() {
 		sed -i -e 's:--no-pie:-no-pie:' -i CMakeLists.txt || die "Cannot patch CMakeLists.txt"
 	fi
 
-	sed -i -- "s/VERSION_REVISION .*)/VERSION_REVISION ${PV##*.})/g" libs/libcommon/cmake/version.cmake
-	sed -i -- "s/VERSION_DESCRIBE .*)/VERSION_DESCRIBE v${PV}-${TYPE})/g" libs/libcommon/cmake/version.cmake
-	epatch "${FILESDIR}"/re2-length-type.patch
+	sed -i -- "s/VERSION_REVISION .*)/VERSION_REVISION ${PV##*.})/g" dbms/cmake/version.cmake
+	sed -i -- "s/VERSION_DESCRIBE .*)/VERSION_DESCRIBE v${PV}-${TYPE})/g" dbms/cmake/version.cmake
 }
 
 src_configure() {
 	DISABLE_MONGODB=1
 	use mongodb && DISABLE_MONGODB=0
 	export DISABLE_MONGODB
+	local mycmakeargs=(
+		-D CMAKE_BUILD_TYPE:STRING=Release
+		-D USE_STATIC_LIBRARIES:BOOL=False
+		-D ENABLE_TESTS:BOOL=False
+		-D UNBUNDLED:BOOL=False
+		-D USE_INTERNAL_DOUBLE_CONVERSION_LIBRARY:BOOL=False
+		-D USE_INTERNAL_CAPNP_LIBRARY:BOOL=False
+		-D USE_INTERNAL_POCO_LIBRARY:BOOL=True
+		-D POCO_STATIC:BOOL=True
+		-D USE_INTERNAL_RE2_LIBRARY:BOOL=False
+	)
 	cmake-utils_src_configure
 }
 
@@ -120,6 +131,9 @@ src_install() {
 		exeinto /usr/sbin
 		newexe dbms/src/Server/clickhouse clickhouse-server
 		newinitd "${FILESDIR}"/clickhouse-server.initd clickhouse
+
+		exeinto /usr/$(get_libdir)
+		doexe dbms/libclickhouse.so.1
 
 		insinto /etc/clickhouse-server
 		doins "${S}"/dbms/src/Server/config.xml
