@@ -44,6 +44,7 @@ client? (
 	sys-libs/ncurses:0
 	sys-libs/readline:0
 )
+dev-libs/librdkafka
 "
 
 DEPEND="${RDEPEND}
