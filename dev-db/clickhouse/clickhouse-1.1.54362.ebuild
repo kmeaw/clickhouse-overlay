@@ -45,6 +45,7 @@ client? (
 	sys-libs/readline:0
 )
 dev-libs/librdkafka
+dev-libs/double-conversion
 "
 
 DEPEND="${RDEPEND}
