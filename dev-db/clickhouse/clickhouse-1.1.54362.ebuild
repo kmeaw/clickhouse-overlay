@@ -53,7 +53,6 @@ sys-libs/libtermcap-compat[static-libs]
 dev-libs/icu[static-libs]
 dev-libs/glib[static-libs]
 dev-libs/openssl[static-libs]
-dev-util/patchelf
 virtual/libmysqlclient[static-libs]
 dev-cpp/gtest[static-libs]
 dev-libs/re2
@@ -127,7 +126,8 @@ src_compile() {
 src_install() {
 	cd "${BUILD_DIR}"
 	einfo $(pwd)
-	patchelf --remove-rpath dbms/src/Server/clickhouse
+	scanelf -BXrq dbms/src/Server/clickhouse
+	scanelf -BXrq dbms/libclickhouse.so.1
 
 	if use server; then
 		exeinto /usr/sbin
