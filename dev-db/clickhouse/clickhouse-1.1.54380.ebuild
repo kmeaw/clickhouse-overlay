@@ -23,10 +23,10 @@ https://github.com/google/cctz/archive/4f9776a.tar.gz -> cctz-4f9776a.tar.gz
 https://github.com/edenhill/librdkafka/archive/c3d50eb.tar.gz -> librdkafka-c3d50eb.tar.gz
 https://github.com/lz4/lz4/archive/c10863b.tar.gz -> lz4-c10863b.tar.gz
 https://github.com/ClickHouse-Extras/zookeeper/archive/438afae.tar.gz -> zookeeper-438afae.tar.gz
-https://github.com/facebook/zstd/archive/f4340f4.tar.gz -> zstd-f4340f4.tar.gz
+https://github.com/facebook/zstd/archive/2555975.tar.gz -> zstd-255975.tar.gz
 https://github.com/Dead2/zlib-ng/archive/e07a52d.tar.gz -> zlib-ng-e07a52d.tar.gz
-https://github.com/ClickHouse-Extras/poco/archive/8238852.tar.gz -> poco-8238852.tar.gz
-https://github.com/ClickHouse-Extras/boost/archive/eb59437.tar.gz -> boost-eb59437.tar.gz"
+https://github.com/ClickHouse-Extras/poco/archive/2d5a158.tar.gz -> poco-2d5a158.tar.gz
+https://github.com/ClickHouse-Extras/boost/archive/5121cc9.tar.gz -> boost-5121cc9.tar.gz"
 	S="${WORKDIR}/${MY_PN}-${PV}-${TYPE}"
 fi
 
@@ -52,7 +52,7 @@ DEPEND="${RDEPEND}
 sys-libs/libtermcap-compat[static-libs]
 dev-libs/icu[static-libs]
 dev-libs/glib[static-libs]
-dev-libs/openssl[static-libs]
+|| ( dev-libs/openssl[static-libs] dev-libs/libressl[static-libs] )
 virtual/libmysqlclient[static-libs]
 dev-cpp/gtest[static-libs]
 dev-libs/re2
@@ -80,10 +80,10 @@ src_unpack() {
 	tar --strip-components=1 -C librdkafka -xf "${DISTDIR}/librdkafka-c3d50eb.tar.gz"
 	tar --strip-components=1 -C lz4 -xf "${DISTDIR}/lz4-c10863b.tar.gz"
 	tar --strip-components=1 -C zookeeper -xf "${DISTDIR}/zookeeper-438afae.tar.gz"
-	tar --strip-components=1 -C zstd -xf "${DISTDIR}/zstd-f4340f4.tar.gz"
+	tar --strip-components=1 -C zstd -xf "${DISTDIR}/zstd-2555975.tar.gz"
 	tar --strip-components=1 -C zlib-ng -xf "${DISTDIR}/zlib-ng-e07a52d.tar.gz"
-	tar --strip-components=1 -C poco -xf "${DISTDIR}/poco-8238852.tar.gz"
-	tar --strip-components=1 -C boost -xf "${DISTDIR}/boost-eb59437.tar.gz"
+	tar --strip-components=1 -C poco -xf "${DISTDIR}/poco-2d5a158.tar.gz"
+	tar --strip-components=1 -C boost -xf "${DISTDIR}/boost-5121cc9.tar.gz"
 }
 
 src_prepare() {
