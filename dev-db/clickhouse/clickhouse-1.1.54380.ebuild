@@ -23,15 +23,16 @@ https://github.com/google/cctz/archive/4f9776a.tar.gz -> cctz-4f9776a.tar.gz
 https://github.com/edenhill/librdkafka/archive/c3d50eb.tar.gz -> librdkafka-c3d50eb.tar.gz
 https://github.com/lz4/lz4/archive/c10863b.tar.gz -> lz4-c10863b.tar.gz
 https://github.com/ClickHouse-Extras/zookeeper/archive/438afae.tar.gz -> zookeeper-438afae.tar.gz
-https://github.com/facebook/zstd/archive/2555975.tar.gz -> zstd-255975.tar.gz
+https://github.com/facebook/zstd/archive/2555975.tar.gz -> zstd-2555975.tar.gz
 https://github.com/Dead2/zlib-ng/archive/e07a52d.tar.gz -> zlib-ng-e07a52d.tar.gz
 https://github.com/ClickHouse-Extras/poco/archive/2d5a158.tar.gz -> poco-2d5a158.tar.gz
-https://github.com/ClickHouse-Extras/boost/archive/5121cc9.tar.gz -> boost-5121cc9.tar.gz"
+https://github.com/ClickHouse-Extras/boost/archive/5121cc9.tar.gz -> boost-5121cc9.tar.gz
+libressl? ( https://github.com/ClickHouse-Extras/ssl/archive/6fbe1c6.tar.gz -> ssl-6fbe1c6.tar.gz )"
 	S="${WORKDIR}/${MY_PN}-${PV}-${TYPE}"
 fi
 
 SLOT="0/${TYPE}"
-IUSE="+server +client mongodb cpu_flags_x86_sse4_2"
+IUSE="+server +client mongodb cpu_flags_x86_sse4_2 libressl"
 KEYWORDS="~amd64"
 
 REQUIRED_USE="
@@ -44,7 +45,6 @@ client? (
 	sys-libs/ncurses:0
 	sys-libs/readline:0
 )
-dev-libs/librdkafka
 dev-libs/double-conversion
 "
 
@@ -52,7 +52,7 @@ DEPEND="${RDEPEND}
 sys-libs/libtermcap-compat[static-libs]
 dev-libs/icu[static-libs]
 dev-libs/glib[static-libs]
-|| ( dev-libs/openssl[static-libs] dev-libs/libressl[static-libs] )
+|| ( dev-libs/openssl[static-libs] dev-libs/libressl )
 virtual/libmysqlclient[static-libs]
 dev-cpp/gtest[static-libs]
 dev-libs/re2
@@ -84,6 +84,7 @@ src_unpack() {
 	tar --strip-components=1 -C zlib-ng -xf "${DISTDIR}/zlib-ng-e07a52d.tar.gz"
 	tar --strip-components=1 -C poco -xf "${DISTDIR}/poco-2d5a158.tar.gz"
 	tar --strip-components=1 -C boost -xf "${DISTDIR}/boost-5121cc9.tar.gz"
+	use libressl && tar --strip-components=1 -C ssl -xf "${DISTDIR}/ssl-6fbe1c6.tar.gz"
 }
 
 src_prepare() {
@@ -116,6 +117,7 @@ src_configure() {
 		-D POCO_STATIC:BOOL=True
 		-D USE_INTERNAL_RE2_LIBRARY:BOOL=False
 	)
+	use libressl && mycmakeargs+=( -D USE_INTERNAL_SSL_LIBRARY:BOOL=True )
 	cmake-utils_src_configure
 }
 
